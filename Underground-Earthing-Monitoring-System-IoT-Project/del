@@ -1,0 +1,4 @@
+Built a real-time monitoring system to detect moisture content around underground earthing rods.
+Interfaced soil moisture sensor with ESP32 MCU and programmed data transmission via Wi-Fi.
+Developed firmware in C++ to measure, process, and transmit sensor data.
+Technology Used: C++, ESP32, Embedded Systems, Wi-Fi, Soil Moisture Sensor
