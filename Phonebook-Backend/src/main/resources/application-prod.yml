@@ -1,0 +1,46 @@
+# Production profile. Every value must come from the environment.
+# Startup fails fast when required secrets/DB settings are missing.
+#
+# This is the profile the Render service runs with (SPRING_PROFILES_ACTIVE=prod,
+# injected by render.yaml). It tightens the defaults; it never contains a secret.
+# See RENDER-DEPLOYMENT.md.
+phonebook:
+  datasource:
+    # Aiven for MySQL encrypts every connection, so the driver must never fall
+    # back to plaintext. REQUIRED needs no extra file; VERIFY_CA /
+    # VERIFY_IDENTITY additionally validate the server certificate and require
+    # the Aiven project CA (see the deployment guide).
+    ssl-mode: ${DB_SSL_MODE:REQUIRED}
+    # The production database is provisioned once by you, not by the driver, so
+    # a least-privilege application user never needs CREATE DATABASE.
+    create-if-not-exist: ${DB_CREATE_IF_NOT_EXIST:false}
+
+spring:
+  flyway:
+    clean-disabled: true
+    # Stated explicitly so the demo seed can never be pulled in by a stray
+    # profile setting: db/seed is NOT a production Flyway location, which is
+    # why the publicly known demo account cannot exist in production.
+    locations: classpath:db/migration
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+logging:
+  level:
+    root: WARN
+    com.phonebook: INFO
+    org.springframework.security: WARN
+  file:
+    # Managed hosts collect stdout/stderr, so the rolling file appender defined
+    # in application.yml stays off unless LOG_FILE points at a durable path.
+    # Resolving to an empty value is what switches it off.
+    name: ${LOG_FILE:}
+
+management:
+  endpoint:
+    health:
+      show-details: never
